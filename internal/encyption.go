@@ -14,8 +14,7 @@ import (
 )
 
 type Encrypter struct {
-	Gcm   cipher.AEAD
-	Nonce []byte
+	Gcm cipher.AEAD
 }
 
 func NewEncrypter(key string) (Encrypter, error) {
@@ -30,14 +29,8 @@ func NewEncrypter(key string) (Encrypter, error) {
 		return Encrypter{}, fmt.Errorf("initializing cipher GCM: %w", err)
 	}
 
-	nonce := make([]byte, gcm.NonceSize())
-	_, err = io.ReadFull(rand.Reader, nonce)
-	if err != nil {
-		return Encrypter{}, fmt.Errorf("initializing nonce: %w", err)
-	}
 	return Encrypter{
-		Gcm:   gcm,
-		Nonce: nonce,
+		Gcm: gcm,
 	}, nil
 }
 
@@ -84,7 +77,10 @@ func (enc *Encrypter) EncryptFile(filePath string) error {
 	if err != nil {
 		return fmt.Errorf("read file err: %v", err)
 	}
-	encryptedContent := enc.Gcm.Seal(enc.Nonce, enc.Nonce, content, nil)
+	encryptedContent, err := enc.Encrypt(content)
+	if err != nil {
+		return fmt.Errorf("creating encrypted file from %s : %w", filePath, err)
+	}
 
 	newFilePath := fmt.Sprintf("%s.roll", filePath)
 	f, err := os.Create(newFilePath)
@@ -98,6 +94,15 @@ func (enc *Encrypter) EncryptFile(filePath string) error {
 		return fmt.Errorf("writing to encrypted file %s : %w", newFilePath, err)
 	}
 	return nil
+}
+
+func (enc *Encrypter) Encrypt(content []byte) ([]byte, error) {
+	nonce := make([]byte, enc.Gcm.NonceSize())
+	_, err := io.ReadFull(rand.Reader, nonce)
+	if err != nil {
+		return nil, fmt.Errorf("initializing nonce: %w", err)
+	}
+	return enc.Gcm.Seal(nonce, nonce, content, nil), nil
 }
 
 func (enc *Encrypter) EncryptDirectory(directoryPath string) error {
@@ -138,10 +143,13 @@ func (enc *Encrypter) EncryptDirectory(directoryPath string) error {
 	}
 
 	if err := tw.Close(); err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("creating encrypted file from directory %s : %w", directoryPath, err)
 	}
 
-	encryptedTar := enc.Gcm.Seal(enc.Nonce, enc.Nonce, buf.Bytes(), nil)
+	encryptedTar, err := enc.Encrypt(buf.Bytes())
+	if err != nil {
+		return fmt.Errorf("creating encrypted file from directory %s : %w", directoryPath, err)
+	}
 
 	newFilePath := fmt.Sprintf("%s.roll", directoryPath)
 	f, err := os.Create(newFilePath)
