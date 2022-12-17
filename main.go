@@ -20,15 +20,9 @@ func main() {
 		log.Printf("ERROR: entered key is invalid.")
 		os.Exit(-1)
 	}
-	config.Key = validateKey(config.Key)
 
 	internal.EncryptAll(config)
 
-}
-
-func validateKey(key string) string {
-	// TODO: fill up to have a valid key length (16, 24, etc.)
-	return key
 }
 
 func parseFlags() internal.Config {
@@ -62,18 +56,21 @@ func parseFlags() internal.Config {
 	}
 
 	if len(config.Paths) == 0 {
-		log.Printf("INFO: no paths specified. The current directory content will be encrypted.")
-		files, err := os.ReadDir(".")
-		if err != nil {
-			log.Printf("ERROR: cannot read current directory content: %v", err)
-			os.Exit(-1)
-		}
-
-		for _, f := range files {
-			if f.Name() == os.Args[0] {
-				continue
+		if config.Mode == "roll" {
+			log.Printf("INFO: no paths specified. Files and directories in the current directory will be encrypted.")
+			files, err := os.ReadDir(".")
+			if err != nil {
+				log.Printf("ERROR: cannot read current directory content: %v", err)
+				os.Exit(-1)
 			}
-			config.Paths = append(config.Paths, f.Name())
+			for _, f := range files {
+				if f.Name() != os.Args[0] {
+					config.Paths = append(config.Paths, f.Name())
+				}
+			}
+		} else {
+			log.Printf("INFO: no paths specified. Looking for .roll files to decrypt.")
+			// TODO: Implement
 		}
 	}
 	return config
