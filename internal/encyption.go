@@ -79,12 +79,12 @@ func validateEncryptionKey(key string) (string, error) {
 	}
 }
 
-func (e *Encrypter) EncryptFile(filePath string) error {
+func (enc *Encrypter) EncryptFile(filePath string) error {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("read file err: %v", err)
 	}
-	encryptedContent := e.Gcm.Seal(e.Nonce, e.Nonce, content, nil)
+	encryptedContent := enc.Gcm.Seal(enc.Nonce, enc.Nonce, content, nil)
 
 	newFilePath := fmt.Sprintf("%s.roll", filePath)
 	f, err := os.Create(newFilePath)
@@ -100,7 +100,7 @@ func (e *Encrypter) EncryptFile(filePath string) error {
 	return nil
 }
 
-func (e *Encrypter) EncryptDirectory(directoryPath string) error {
+func (enc *Encrypter) EncryptDirectory(directoryPath string) error {
 	var buf bytes.Buffer
 	tw := tar.NewWriter(&buf)
 
@@ -141,7 +141,7 @@ func (e *Encrypter) EncryptDirectory(directoryPath string) error {
 		log.Fatal(err)
 	}
 
-	encryptedTar := e.Gcm.Seal(e.Nonce, e.Nonce, buf.Bytes(), nil)
+	encryptedTar := enc.Gcm.Seal(enc.Nonce, enc.Nonce, buf.Bytes(), nil)
 
 	newFilePath := fmt.Sprintf("%s.roll", directoryPath)
 	f, err := os.Create(newFilePath)
