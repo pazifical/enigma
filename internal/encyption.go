@@ -14,7 +14,7 @@ import (
 )
 
 type Encrypter struct {
-	Gcm cipher.AEAD
+	gcm cipher.AEAD
 }
 
 func NewEncrypter(key string) (Encrypter, error) {
@@ -30,7 +30,7 @@ func NewEncrypter(key string) (Encrypter, error) {
 	}
 
 	return Encrypter{
-		Gcm: gcm,
+		gcm: gcm,
 	}, nil
 }
 
@@ -97,12 +97,12 @@ func (enc *Encrypter) EncryptFile(filePath string) error {
 }
 
 func (enc *Encrypter) Encrypt(content []byte) ([]byte, error) {
-	nonce := make([]byte, enc.Gcm.NonceSize())
+	nonce := make([]byte, enc.gcm.NonceSize())
 	_, err := io.ReadFull(rand.Reader, nonce)
 	if err != nil {
 		return nil, fmt.Errorf("initializing nonce: %w", err)
 	}
-	return enc.Gcm.Seal(nonce, nonce, content, nil), nil
+	return enc.gcm.Seal(nonce, nonce, content, nil), nil
 }
 
 func (enc *Encrypter) EncryptDirectory(directoryPath string) error {
