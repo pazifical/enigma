@@ -3,8 +3,6 @@ package internal
 import (
 	"archive/tar"
 	"bytes"
-	"crypto/aes"
-	"crypto/cipher"
 	"crypto/rand"
 	"fmt"
 	"io"
@@ -13,29 +11,8 @@ import (
 	"path/filepath"
 )
 
-type Encrypter struct {
-	gcm cipher.AEAD
-}
-
-func NewEncrypter(key string) (Encrypter, error) {
-	key, err := validateEncryptionKey(key)
-	block, err := aes.NewCipher([]byte(key))
-	if err != nil {
-		return Encrypter{}, fmt.Errorf("initializing cipher: %w", err)
-	}
-
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
-		return Encrypter{}, fmt.Errorf("initializing cipher GCM: %w", err)
-	}
-
-	return Encrypter{
-		gcm: gcm,
-	}, nil
-}
-
 func EncryptAll(config Config) error {
-	encrypter, err := NewEncrypter(config.Key)
+	enigma, err := NewEnigma(config.Key)
 	if err != nil {
 		return fmt.Errorf("encrypting all paths: %w", err)
 	}
@@ -46,12 +23,12 @@ func EncryptAll(config Config) error {
 			log.Printf("ERROR: while getting information on file %s : %v", p, err)
 		}
 		if stat.IsDir() {
-			err := encrypter.EncryptDirectory(p)
+			err := enigma.EncryptDirectory(p)
 			if err != nil {
 				log.Printf("ERROR: while encrypting directory %s : %v", p, err)
 			}
 		} else {
-			err := encrypter.EncryptFile(p)
+			err := enigma.EncryptFile(p)
 			if err != nil {
 				log.Printf("ERROR: while encrypting file %s : %v", p, err)
 			}
@@ -60,24 +37,12 @@ func EncryptAll(config Config) error {
 	return nil
 }
 
-func validateEncryptionKey(key string) (string, error) {
-	if len(key) > 32 {
-		return key, fmt.Errorf("maximum AES key length exceeded. %d > 32", len(key))
-	}
-	for {
-		if len(key) == 16 || len(key) == 24 || len(key) == 32 {
-			return key, nil
-		}
-		key = key + "0"
-	}
-}
-
-func (enc *Encrypter) EncryptFile(filePath string) error {
+func (e *Enigma) EncryptFile(filePath string) error {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("read file err: %v", err)
 	}
-	encryptedContent, err := enc.Encrypt(content)
+	encrypted, err := e.Encrypt(content)
 	if err != nil {
 		return fmt.Errorf("creating encrypted file from %s : %w", filePath, err)
 	}
@@ -89,23 +54,23 @@ func (enc *Encrypter) EncryptFile(filePath string) error {
 	}
 	defer f.Close()
 
-	_, err = f.Write(encryptedContent)
+	_, err = f.Write(encrypted)
 	if err != nil {
 		return fmt.Errorf("writing to encrypted file %s : %w", newFilePath, err)
 	}
 	return nil
 }
 
-func (enc *Encrypter) Encrypt(content []byte) ([]byte, error) {
-	nonce := make([]byte, enc.gcm.NonceSize())
+func (e *Enigma) Encrypt(data []byte) ([]byte, error) {
+	nonce := make([]byte, e.gcm.NonceSize())
 	_, err := io.ReadFull(rand.Reader, nonce)
 	if err != nil {
 		return nil, fmt.Errorf("initializing nonce: %w", err)
 	}
-	return enc.gcm.Seal(nonce, nonce, content, nil), nil
+	return e.gcm.Seal(nonce, nonce, data, nil), nil
 }
 
-func (enc *Encrypter) EncryptDirectory(directoryPath string) error {
+func (e *Enigma) EncryptDirectory(directoryPath string) error {
 	var buf bytes.Buffer
 	tw := tar.NewWriter(&buf)
 
@@ -146,7 +111,7 @@ func (enc *Encrypter) EncryptDirectory(directoryPath string) error {
 		return fmt.Errorf("creating encrypted file from directory %s : %w", directoryPath, err)
 	}
 
-	encryptedTar, err := enc.Encrypt(buf.Bytes())
+	encryptedTar, err := e.Encrypt(buf.Bytes())
 	if err != nil {
 		return fmt.Errorf("creating encrypted file from directory %s : %w", directoryPath, err)
 	}

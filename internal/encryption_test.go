@@ -2,8 +2,8 @@ package internal
 
 import "testing"
 
-func TestFileEncryption(t *testing.T) {
-	encrypter, err := NewEncrypter("key")
+func TestFileEncryptionCausesNoErrors(t *testing.T) {
+	encrypter, err := NewEnigma("key")
 	if err != nil {
 		t.Errorf("encountered an error: %v", err)
 	}
@@ -14,8 +14,8 @@ func TestFileEncryption(t *testing.T) {
 	}
 }
 
-func TestDirectoryEncryption(t *testing.T) {
-	encrypter, err := NewEncrypter("key")
+func TestDirectoryEncryptionCausesNoErrors(t *testing.T) {
+	encrypter, err := NewEnigma("key")
 	if err != nil {
 		t.Errorf("encountered an error: %v", err)
 	}
