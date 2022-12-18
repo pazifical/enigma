@@ -1,7 +1,8 @@
 package internal
 
 type Config struct {
-	Mode  string
-	Paths []string
-	Key   string
+	Mode    string
+	Paths   []string
+	Key     string
+	OutPath string
 }

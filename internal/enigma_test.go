@@ -49,7 +49,7 @@ func TestFileEncryptionDecryption(t *testing.T) {
 		t.Errorf("encountered an error: %v", err)
 	}
 
-	err = enigma.EncryptFile(filePath)
+	err = enigma.EncryptFile(filePath, encryptedFilePath)
 	if err != nil {
 		t.Errorf("encountered an error: %v", err)
 	}

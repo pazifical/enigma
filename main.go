@@ -7,6 +7,7 @@ import (
 	"github.com/TwoWaySix/enigma/internal"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -17,19 +18,30 @@ func main() {
 	log.Printf("INFO: please enter encryption key:")
 	_, err := fmt.Scanf("%s", &config.Key)
 	if err != nil {
-		log.Printf("ERROR: entered key is invalid.")
+		log.Printf("ERROR: entered key is invalid: %v", err)
 		os.Exit(-1)
 	}
 
-	internal.EncryptAll(config)
+	err = internal.EncryptAll(config)
+	if err != nil {
+		log.Printf("ERROR: encryption failed: %v", err)
+		os.Exit(-1)
+	}
 
+	err = internal.CreateTarFromRolls(config)
+	if err != nil {
+		log.Printf("ERROR: packaging failed: %v", err)
+		os.Exit(-1)
+	}
 }
 
 func parseFlags() internal.Config {
 	var mode string
 	var paths string
+	var outPath string
 	flag.StringVar(&mode, "mode", "unroll", "roll or unroll")
 	flag.StringVar(&paths, "paths", "", "comma separated paths to files or directories")
+	flag.StringVar(&outPath, "out", "./enigma.roll", "output file")
 	flag.Parse()
 
 	var config internal.Config
@@ -57,21 +69,43 @@ func parseFlags() internal.Config {
 
 	if len(config.Paths) == 0 {
 		if config.Mode == "roll" {
-			log.Printf("INFO: no paths specified. Files and directories in the current directory will be encrypted.")
-			files, err := os.ReadDir(".")
+			log.Printf("INFO: no paths specified. Files in the current and subdirectories will be encrypted.")
+			paths, err := findAllFiles(".")
 			if err != nil {
-				log.Printf("ERROR: cannot read current directory content: %v", err)
+				log.Printf("ERROR: looking for files current directory: %v", err)
 				os.Exit(-1)
 			}
-			for _, f := range files {
-				if f.Name() != os.Args[0] {
-					config.Paths = append(config.Paths, f.Name())
-				}
-			}
+			config.Paths = paths
 		} else {
 			log.Printf("INFO: no paths specified. Looking for .roll files to decrypt.")
 			// TODO: Implement
 		}
 	}
+
+	config.OutPath = outPath
+
 	return config
+}
+
+func findAllFiles(directoryPath string) ([]string, error) {
+	var filePaths []string
+	err := filepath.Walk(directoryPath,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if info.IsDir() {
+				return nil
+			}
+			if filepath.Base(path) == os.Args[0] {
+				return nil
+			}
+			fmt.Println(path, info.Size())
+			filePaths = append(filePaths, path)
+			return nil
+		})
+	if err != nil {
+		return nil, fmt.Errorf("finding all files in %s : %w", directoryPath, err)
+	}
+	return filePaths, nil
 }
