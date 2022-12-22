@@ -1,11 +1,10 @@
-package encryption
+package internal
 
 import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"fmt"
-	"github.com/TwoWaySix/enigma/internal"
 	"io"
 )
 
@@ -27,14 +26,27 @@ func NewProcessor(encryptionKey string) (Processor, error) {
 	return Processor{gcm: gcm}, nil
 }
 
-func (p *Processor) Encrypt(file internal.UnencryptedFile) (internal.EncryptedFile, error) {
+func (p *Processor) Encrypt(file UnencryptedFile) (EncryptedFile, error) {
 	nonce := make([]byte, p.gcm.NonceSize())
 	_, err := io.ReadFull(rand.Reader, nonce)
 	if err != nil {
-		return internal.EncryptedFile{}, fmt.Errorf("initializing nonce: %w", err)
+		return EncryptedFile{}, fmt.Errorf("initializing nonce: %w", err)
 	}
-	return internal.EncryptedFile{
+	return EncryptedFile{
 		Data: p.gcm.Seal(nonce, nonce, file.Data, nil),
+		Path: file.Path,
+	}, nil
+}
+
+func (p *Processor) Decrypt(file EncryptedFile) (UnencryptedFile, error) {
+	nonce := file.Data[:p.gcm.NonceSize()]
+	data := file.Data[p.gcm.NonceSize():]
+	decrypted, err := p.gcm.Open(nil, nonce, data, nil)
+	if err != nil {
+		return UnencryptedFile{}, fmt.Errorf("decrypting: %w", err)
+	}
+	return UnencryptedFile{
+		Data: decrypted,
 		Path: file.Path,
 	}, nil
 }

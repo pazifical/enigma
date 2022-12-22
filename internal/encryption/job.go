@@ -8,14 +8,14 @@ import (
 
 type Job struct {
 	reader    Reader
-	processor Processor
+	processor internal.Processor
 	writer    Writer
 }
 
 func NewJob(config internal.Config) (Job, error) {
 	reader := NewReader(config.Paths)
 
-	processor, err := NewProcessor(config.Key)
+	processor, err := internal.NewProcessor(config.Key)
 	if err != nil {
 		return Job{}, fmt.Errorf("creating new job: %w", err)
 	}
