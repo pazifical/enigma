@@ -4,39 +4,44 @@ import (
 	"fmt"
 	"github.com/TwoWaySix/enigma/internal"
 	"os"
+	"path/filepath"
 )
 
 type Reader struct {
-	filepaths []string
-	index     int
+	directoryPath string
+	readFiles     chan internal.UnencryptedFile
 }
 
-func NewReader(filepaths []string) Reader {
-	return Reader{filepaths: filepaths}
+func NewReader(directory string, readFiles chan internal.UnencryptedFile) Reader {
+	return Reader{directoryPath: directory, readFiles: readFiles}
 }
 
-func (r *Reader) ReadNext() (internal.UnencryptedFile, bool, error) {
-	if r.index >= len(r.filepaths) {
-		return internal.UnencryptedFile{}, false, nil
-	}
-
-	filePath := r.filepaths[r.index]
-	f, err := r.read(filePath)
+func (r *Reader) Start() error {
+	err := filepath.Walk(r.directoryPath,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if info.IsDir() {
+				r.readFiles <- internal.UnencryptedFile{Data: nil} // TODO: Find an elegant solution
+				return nil
+			}
+			return r.read(path)
+		})
 	if err != nil {
-		return internal.UnencryptedFile{}, true, fmt.Errorf("reading next file %s : %w", filePath, err)
+		return fmt.Errorf("finding all files in %s : %w", r.directoryPath, err)
 	}
-
-	r.index += 1
-	return f, true, nil
+	return nil
 }
 
-func (r *Reader) read(filePath string) (internal.UnencryptedFile, error) {
-	content, err := os.ReadFile(filePath)
+func (r *Reader) read(filePath string) error {
+	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return internal.UnencryptedFile{}, fmt.Errorf("reading file %s: %v", filePath, err)
+		return fmt.Errorf("reading file %s : %w", filePath, err)
 	}
-	return internal.UnencryptedFile{
-		Data: content,
+	r.readFiles <- internal.UnencryptedFile{
+		Data: data,
 		Path: filePath,
-	}, nil
+	}
+	return nil
 }

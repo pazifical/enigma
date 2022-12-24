@@ -8,12 +8,14 @@ import (
 
 type Job struct {
 	reader    Reader
+	readFiles chan internal.UnencryptedFile
 	processor internal.Processor
 	writer    Writer
 }
 
 func NewJob(config internal.Config) (Job, error) {
-	reader := NewReader(config.Paths)
+	readFiles := make(chan internal.UnencryptedFile)
+	reader := NewReader(config.InputPath, readFiles)
 
 	processor, err := internal.NewProcessor(config.Key)
 	if err != nil {
@@ -29,17 +31,16 @@ func NewJob(config internal.Config) (Job, error) {
 		reader:    reader,
 		processor: processor,
 		writer:    writer,
+		readFiles: readFiles,
 	}, nil
 }
 
 func (j *Job) Start() error {
+	go j.reader.Start() // TODO: Error handling
+
 	for {
-		input, ok, err := j.reader.ReadNext()
-		if err != nil {
-			log.Printf("ERROR: running job: %v", err)
-			continue
-		}
-		if !ok {
+		input := <-j.readFiles
+		if input.Data == nil { // TODO: Find an elegant solution
 			break
 		}
 

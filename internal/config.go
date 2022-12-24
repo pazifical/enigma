@@ -1,8 +1,9 @@
 package internal
 
 type Config struct {
-	Mode    string
-	Paths   []string
-	Key     string
-	OutPath string
+	Mode      string
+	InputPath string
+	Key       string
+	OutPath   string
+	Paths     []string // TODO: Remove when deprecated
 }
