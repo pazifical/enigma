@@ -1,14 +1,15 @@
-package internal
+package deprecated
 
 import (
 	"crypto/rand"
 	"fmt"
+	"github.com/TwoWaySix/enigma/internal"
 	"io"
 	"log"
 	"os"
 )
 
-func EncryptAll(config Config) error {
+func EncryptAll(config internal.Config) error {
 	enigma, err := NewEnigma(config.Key)
 	if err != nil {
 		return fmt.Errorf("encrypting all paths: %w", err)
@@ -30,7 +31,7 @@ func EncryptAll(config Config) error {
 	return nil
 }
 
-func (e *Enigma) EncryptFile(filePath string, encryptedFilePath string) error {
+func (e *deprecated.Enigma) EncryptFile(filePath string, encryptedFilePath string) error {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("read file err: %v", err)
@@ -53,7 +54,7 @@ func (e *Enigma) EncryptFile(filePath string, encryptedFilePath string) error {
 	return nil
 }
 
-func (e *Enigma) Encrypt(data []byte) ([]byte, error) {
+func (e *deprecated.Enigma) Encrypt(data []byte) ([]byte, error) {
 	nonce := make([]byte, e.gcm.NonceSize())
 	_, err := io.ReadFull(rand.Reader, nonce)
 	if err != nil {

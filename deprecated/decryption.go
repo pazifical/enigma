@@ -1,4 +1,4 @@
-package internal
+package deprecated
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 )
 
 // TODO: Check, if it is a tar archive and then unpack it!
-func (e *Enigma) DecryptFile(filePath string) error {
+func (e *deprecated.Enigma) DecryptFile(filePath string) error {
 	encrypted, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("decrypting file %s : %w", filePath, err)
@@ -33,7 +33,7 @@ func (e *Enigma) DecryptFile(filePath string) error {
 	return nil
 }
 
-func (e *Enigma) Decrypt(data []byte) ([]byte, error) {
+func (e *deprecated.Enigma) Decrypt(data []byte) ([]byte, error) {
 	nonce := data[:e.gcm.NonceSize()]
 	data = data[e.gcm.NonceSize():]
 	plainText, err := e.gcm.Open(nil, nonce, data, nil)

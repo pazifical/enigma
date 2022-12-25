@@ -17,13 +17,24 @@ func NewReader(directory string, readFiles chan internal.UnencryptedFile) Reader
 }
 
 func (r *Reader) Start() error {
+	var err error
+	go func() {
+		err = r.readAllFiles()
+		if err != nil {
+			return
+		}
+	}()
+	return err
+}
+
+func (r *Reader) readAllFiles() error {
 	err := filepath.Walk(r.directoryPath,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
 			if info.IsDir() {
-				r.readFiles <- internal.UnencryptedFile{Data: nil} // TODO: Find an elegant solution
+				//r.readFiles <- internal.UnencryptedFile{Data: nil} // TODO: Find an elegant solution
 				return nil
 			}
 			return r.read(path)
@@ -31,6 +42,7 @@ func (r *Reader) Start() error {
 	if err != nil {
 		return fmt.Errorf("finding all files in %s : %w", r.directoryPath, err)
 	}
+	// TODO: Close channel?
 	return nil
 }
 

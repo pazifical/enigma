@@ -1,51 +1,52 @@
-package internal
+package enigma
 
 import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"fmt"
+	"github.com/TwoWaySix/enigma/internal"
 	"io"
 )
 
-type Processor struct {
+type Machine struct {
 	gcm cipher.AEAD
 }
 
-func NewProcessor(encryptionKey string) (Processor, error) {
+func NewMachine(encryptionKey string) (Machine, error) {
 	key, err := validateAESEncryptionKey(encryptionKey)
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
-		return Processor{}, fmt.Errorf("initializing cipher: %w", err)
+		return Machine{}, fmt.Errorf("initializing cipher: %w", err)
 	}
 
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return Processor{}, fmt.Errorf("initializing cipher GCM: %w", err)
+		return Machine{}, fmt.Errorf("initializing cipher GCM: %w", err)
 	}
-	return Processor{gcm: gcm}, nil
+	return Machine{gcm: gcm}, nil
 }
 
-func (p *Processor) Encrypt(file UnencryptedFile) (EncryptedFile, error) {
+func (p *Machine) Encrypt(file internal.UnencryptedFile) (internal.EncryptedFile, error) {
 	nonce := make([]byte, p.gcm.NonceSize())
 	_, err := io.ReadFull(rand.Reader, nonce)
 	if err != nil {
-		return EncryptedFile{}, fmt.Errorf("initializing nonce: %w", err)
+		return internal.EncryptedFile{}, fmt.Errorf("initializing nonce: %w", err)
 	}
-	return EncryptedFile{
+	return internal.EncryptedFile{
 		Data: p.gcm.Seal(nonce, nonce, file.Data, nil),
 		Path: file.Path,
 	}, nil
 }
 
-func (p *Processor) Decrypt(file EncryptedFile) (UnencryptedFile, error) {
+func (p *Machine) Decrypt(file internal.EncryptedFile) (internal.UnencryptedFile, error) {
 	nonce := file.Data[:p.gcm.NonceSize()]
 	data := file.Data[p.gcm.NonceSize():]
 	decrypted, err := p.gcm.Open(nil, nonce, data, nil)
 	if err != nil {
-		return UnencryptedFile{}, fmt.Errorf("decrypting: %w", err)
+		return internal.UnencryptedFile{}, fmt.Errorf("decrypting: %w", err)
 	}
-	return UnencryptedFile{
+	return internal.UnencryptedFile{
 		Data: decrypted,
 		Path: file.Path,
 	}, nil

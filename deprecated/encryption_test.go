@@ -1,6 +1,8 @@
-package internal
+package deprecated
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestFileEncryptionCausesNoErrors(t *testing.T) {
 	enigma, err := NewEnigma("key")

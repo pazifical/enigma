@@ -1,16 +1,17 @@
-package internal
+package deprecated
 
 import (
 	"archive/tar"
 	"errors"
 	"fmt"
+	"github.com/TwoWaySix/enigma/internal"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
 )
 
-func CreateTarFromRolls(config Config) error {
+func CreateTarFromRolls(config internal.Config) error {
 	f, err := os.Create(config.OutPath)
 	if err != nil {
 		return fmt.Errorf("creating tar %s : %w", config.OutPath, err)
@@ -58,7 +59,7 @@ func CreateTarFromRolls(config Config) error {
 	return nil
 }
 
-func UntarAll(config Config) {
+func UntarAll(config internal.Config) {
 	for _, p := range config.Paths {
 		err := UntarRoll(p, config.OutPath)
 		if err != nil {

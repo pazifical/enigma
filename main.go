@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/TwoWaySix/enigma/deprecated"
 	"github.com/TwoWaySix/enigma/internal"
 	"log"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"strings"
 )
 
+// TODO: Refactor to use non deprecated workflow
 func main() {
 	fmt.Println("ENIGMA")
 	config := parseFlags()
@@ -22,13 +24,13 @@ func main() {
 		os.Exit(-1)
 	}
 
-	err = internal.EncryptAll(config)
+	err = deprecated.EncryptAll(config)
 	if err != nil {
 		log.Printf("ERROR: encryption failed: %v", err)
 		os.Exit(-1)
 	}
 
-	err = internal.CreateTarFromRolls(config)
+	err = deprecated.CreateTarFromRolls(config)
 	if err != nil {
 		log.Printf("ERROR: packaging failed: %v", err)
 		os.Exit(-1)

@@ -1,7 +1,8 @@
-package internal
+package deprecated
 
 import (
 	"errors"
+	"github.com/TwoWaySix/enigma/internal"
 	"os"
 	"path/filepath"
 	"testing"
@@ -27,7 +28,7 @@ func TestPackingAndUnpacking(t *testing.T) {
 	}
 	f.Close()
 
-	config := Config{
+	config := internal.Config{
 		Mode:    "roll",
 		Paths:   []string{filePath},
 		Key:     "asdf",
@@ -43,7 +44,7 @@ func TestPackingAndUnpacking(t *testing.T) {
 		t.Errorf("Cannot stat tar %s: %v", tarPath, err)
 	}
 
-	config = Config{
+	config = internal.Config{
 		Mode:    "unroll",
 		Paths:   []string{tarPath},
 		Key:     "asdf",
