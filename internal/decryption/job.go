@@ -13,7 +13,8 @@ type Job struct {
 }
 
 func NewJob(config internal.Config) (Job, error) {
-	reader, err := NewReader(config.InputPath)
+	readFiles := make(chan internal.EncryptedFile)
+	reader, err := NewReader(config.InputPath, readFiles)
 	if err != nil {
 		return Job{}, fmt.Errorf("creating new job: %w", err)
 	}
@@ -36,12 +37,14 @@ func NewJob(config internal.Config) (Job, error) {
 }
 
 func (j *Job) Start() error {
+	err := j.reader.Start()
+	if err != nil {
+		return fmt.Errorf("running job: %w", err)
+	}
+
 	for {
-		encrypted, ok, err := j.reader.ReadNext()
-		if err != nil {
-			return fmt.Errorf("running decryption job: %w", err)
-		}
-		if !ok {
+		encrypted := <-j.reader.readFiles
+		if encrypted.Data == nil { // TODO: Find an elegant solution
 			break
 		}
 
@@ -56,7 +59,7 @@ func (j *Job) Start() error {
 		}
 	}
 
-	err := j.Finish()
+	err = j.Finish()
 	if err != nil {
 		return fmt.Errorf("running decryption job: %w", err)
 	}
@@ -64,6 +67,9 @@ func (j *Job) Start() error {
 }
 
 func (j *Job) Finish() error {
-	// TODO: implement
+	err := j.reader.Close()
+	if err != nil {
+		return fmt.Errorf("finalizing job: %w", err)
+	}
 	return nil
 }
