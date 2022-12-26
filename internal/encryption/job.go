@@ -23,7 +23,7 @@ func NewJob(config internal.Config) (Job, error) {
 		return Job{}, fmt.Errorf("creating new job: %w", err)
 	}
 
-	writer, err := NewWriter(config.OutPath)
+	writer, err := NewWriter(config.OutputPath)
 	if err != nil {
 		return Job{}, fmt.Errorf("creating new job: %w", err)
 	}

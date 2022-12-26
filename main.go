@@ -84,7 +84,7 @@ func parseFlags() internal.Config {
 		}
 	}
 
-	config.OutPath = outPath
+	config.OutputPath = outPath
 
 	return config
 }

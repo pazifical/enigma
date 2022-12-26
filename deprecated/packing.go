@@ -12,9 +12,9 @@ import (
 )
 
 func CreateTarFromRolls(config internal.Config) error {
-	f, err := os.Create(config.OutPath)
+	f, err := os.Create(config.OutputPath)
 	if err != nil {
-		return fmt.Errorf("creating tar %s : %w", config.OutPath, err)
+		return fmt.Errorf("creating tar %s : %w", config.OutputPath, err)
 	}
 	defer f.Close()
 
@@ -54,14 +54,14 @@ func CreateTarFromRolls(config internal.Config) error {
 	}
 
 	if err := tw.Close(); err != nil {
-		return fmt.Errorf("creating tar %s : %w", config.OutPath, err)
+		return fmt.Errorf("creating tar %s : %w", config.OutputPath, err)
 	}
 	return nil
 }
 
 func UntarAll(config internal.Config) {
 	for _, p := range config.Paths {
-		err := UntarRoll(p, config.OutPath)
+		err := UntarRoll(p, config.OutputPath)
 		if err != nil {
 			log.Printf("ERROR: unpacking all tars : %v", err)
 		}

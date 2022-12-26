@@ -29,10 +29,10 @@ func TestPackingAndUnpacking(t *testing.T) {
 	f.Close()
 
 	config := internal.Config{
-		Mode:    "roll",
-		Paths:   []string{filePath},
-		Key:     "asdf",
-		OutPath: tarPath,
+		Mode:       "roll",
+		Paths:      []string{filePath},
+		Key:        "asdf",
+		OutputPath: tarPath,
 	}
 	err = CreateTarFromRolls(config)
 	if err != nil {
@@ -45,10 +45,10 @@ func TestPackingAndUnpacking(t *testing.T) {
 	}
 
 	config = internal.Config{
-		Mode:    "unroll",
-		Paths:   []string{tarPath},
-		Key:     "asdf",
-		OutPath: outputDirectory,
+		Mode:       "unroll",
+		Paths:      []string{tarPath},
+		Key:        "asdf",
+		OutputPath: outputDirectory,
 	}
 	err = UntarRoll(tarPath, outputDirectory)
 	if err != nil {
