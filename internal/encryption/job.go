@@ -42,6 +42,7 @@ func (j *Job) Start() error {
 		return fmt.Errorf("running job: %w", err)
 	}
 
+	// TODO: properly close files on error
 	for {
 		input := <-j.reader.readFiles
 		if input.Data == nil { // TODO: Find an elegant solution
@@ -61,14 +62,14 @@ func (j *Job) Start() error {
 		}
 	}
 
-	err = j.Finish()
+	err = j.finish()
 	if err != nil {
 		return fmt.Errorf("running job: %w", err)
 	}
 	return nil
 }
 
-func (j *Job) Finish() error {
+func (j *Job) finish() error {
 	err := j.writer.Close()
 	if err != nil {
 		return fmt.Errorf("finishing job: %w", err)

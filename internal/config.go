@@ -11,7 +11,6 @@ type Config struct {
 	InputPath  string
 	OutputPath string
 	Key        string
-	Paths      []string // TODO: Remove when deprecated
 }
 
 func NewConfig(mode, inputPath, outputPath, key string) (Config, error) {
@@ -42,8 +41,16 @@ func NewConfigFromFlags() (Config, error) {
 
 	switch os.Args[1] {
 	case "roll":
+		err := rollCmd.Parse(os.Args[2:])
+		if err != nil {
+			return Config{}, fmt.Errorf("parsing cli arguments")
+		}
 		return NewConfig(os.Args[1], *rollInput, *rollOutput, *rollKey)
 	case "unroll":
+		err := unrollCmd.Parse(os.Args[2:])
+		if err != nil {
+			return Config{}, fmt.Errorf("parsing cli arguments")
+		}
 		return NewConfig(os.Args[1], *unrollInput, *unrollOutput, *unrollKey)
 	default:
 		return Config{}, fmt.Errorf("first argument has to be 'roll' or 'unroll'")
