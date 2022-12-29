@@ -49,6 +49,7 @@ func (r *Reader) readAllFiles() error {
 			continue
 		}
 	}
+	close(r.readFiles)
 	return nil
 }
 

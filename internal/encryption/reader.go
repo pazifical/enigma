@@ -43,6 +43,7 @@ func (r *Reader) readAllFiles() error {
 		return fmt.Errorf("finding all files in %s : %w", r.directoryPath, err)
 	}
 	// TODO: Close channel?
+	close(r.readFiles)
 	return nil
 }
 

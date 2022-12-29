@@ -32,7 +32,6 @@ func NewJob(config internal.Config) (Job, error) {
 		reader:    reader,
 		processor: processor,
 		writer:    writer,
-		//readFiles: readFiles,
 	}, nil
 }
 
