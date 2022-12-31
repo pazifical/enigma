@@ -1,1 +1,1 @@
-# ENIGMA - Portable single binary encryption/decryption tool
+# ENIGMA - Portable single binary encryption and decryption tool
