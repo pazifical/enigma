@@ -17,14 +17,14 @@ func NewWriter(outDirectory string) (Writer, error) {
 }
 
 func (w *Writer) Write(decrypted internal.UnencryptedFile) error {
-	newPath := filepath.Join(w.outDirectory, decrypted.Path)
-	f, err := os.Create(newPath)
+	newFilePath := filepath.Join(w.outDirectory, decrypted.Path)
+	f, err := os.Create(newFilePath)
 	if err != nil {
-		return fmt.Errorf("writing file '%s' from zip: %w", newPath, err)
+		return fmt.Errorf("writing file '%s' from zip: %w", newFilePath, err)
 	}
 	_, err = f.Write(decrypted.Data)
 	if err != nil {
-		return fmt.Errorf("writing file '%s' from zip: %w", newPath, err)
+		return fmt.Errorf("writing file '%s' from zip: %w", newFilePath, err)
 	}
 	return nil
 }
