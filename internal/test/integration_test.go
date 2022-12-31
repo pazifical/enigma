@@ -11,6 +11,7 @@ import (
 
 var inputDir = "./testdata/input"
 var inputFile1Path = filepath.Join(inputDir, "file1.txt")
+var inputFile1Content = "ENIGMA"
 var encryptionDir = "./testdata/encrypted"
 var encryptedFilePath = filepath.Join(encryptionDir, "file.zip")
 var decryptionDir = "./testdata/decrypted"
@@ -34,7 +35,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	_, err = f.WriteString("ENIGMA")
+	_, err = f.WriteString(inputFile1Content)
 	if err != nil {
 		panic(err)
 	}
@@ -45,7 +46,11 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	err = os.Remove(inputDir)
+	err = os.Remove(encryptedFilePath)
+	if err != nil {
+		panic(err)
+	}
+	err = os.Remove(decryptionFilePath)
 	if err != nil {
 		panic(err)
 	}
@@ -81,5 +86,15 @@ func TestEncryptionDecryption(t *testing.T) {
 	err = decryptionJob.Start()
 	if err != nil {
 		t.Errorf(err.Error())
+	}
+
+	// Check if after encryption and decryption the file content still is the same
+	data, err := os.ReadFile(decryptionFilePath)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	got := string(data)
+	if got != inputFile1Content {
+		t.Errorf("got: %s , want: %s", got, inputFile1Content)
 	}
 }
