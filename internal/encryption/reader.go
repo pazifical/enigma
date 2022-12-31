@@ -52,9 +52,13 @@ func (r *Reader) read(filePath string) error {
 	if err != nil {
 		return fmt.Errorf("reading file %s : %w", filePath, err)
 	}
+	relFilePath, err := filepath.Rel(r.directoryPath, filePath)
+	if err != nil {
+		return fmt.Errorf("reading file %s : %w", filePath, err)
+	}
 	r.readFiles <- internal.UnencryptedFile{
 		Data: data,
-		Path: filePath,
+		Path: relFilePath,
 	}
 	return nil
 }

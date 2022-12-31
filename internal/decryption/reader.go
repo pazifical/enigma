@@ -59,10 +59,16 @@ func (r *Reader) read(f *zip.File) error {
 		return fmt.Errorf("reading %s : %w", f.Name, err)
 	}
 
-	var data []byte
+	if f.FileInfo().IsDir() {
+		return nil
+	}
+
+	bytes := f.FileInfo().Size()
+	data := make([]byte, bytes, bytes)
 	_, err = readCloser.Read(data)
 	if err != nil {
-		return fmt.Errorf("reading %s : %w", f.Name, err)
+		// TODO: handle properly
+		// return fmt.Errorf("reading %s : %w", f.Name, err)
 	}
 	r.readFiles <- internal.EncryptedFile{Data: data, Path: f.Name} // TODO: Check if f.Name is really the correct path
 	return nil

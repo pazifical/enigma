@@ -12,7 +12,7 @@ import (
 var inputDir = "./testdata/input"
 var inputFile1Path = filepath.Join(inputDir, "file1.txt")
 var encryptionDir = "./testdata/encrypted"
-var encryptedFilePath = filepath.Join(encryptionDir, "file.roll")
+var encryptedFilePath = filepath.Join(encryptionDir, "file.zip")
 var decryptionDir = "./testdata/decrypted"
 var decryptionFilePath = filepath.Join(decryptionDir, "file1.txt")
 
