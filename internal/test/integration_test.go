@@ -6,6 +6,7 @@ import (
 	"github.com/TwoWaySix/enigma/internal/encryption"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -16,6 +17,7 @@ var encryptionDir = "./testdata/encrypted"
 var encryptedFilePath = filepath.Join(encryptionDir, "file.zip")
 var decryptionDir = "./testdata/decrypted"
 var decryptionFilePath = filepath.Join(decryptionDir, "file1.txt")
+var key = strings.Repeat("a", 16)
 
 func TestMain(m *testing.M) {
 	err := os.MkdirAll(inputDir, 0755)
@@ -62,7 +64,7 @@ func TestEncryptionDecryption(t *testing.T) {
 		Mode:       "roll",
 		InputPath:  inputDir,
 		OutputPath: encryptedFilePath,
-		Key:        "asdf",
+		Key:        key,
 	}
 
 	encryptionJob, err := encryption.NewJob(config)

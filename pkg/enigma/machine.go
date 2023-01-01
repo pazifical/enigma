@@ -53,13 +53,8 @@ func (p *Machine) Decrypt(file internal.EncryptedFile) (internal.UnencryptedFile
 }
 
 func validateAESEncryptionKey(key string) (string, error) {
-	if len(key) > 32 {
-		return key, fmt.Errorf("maximum AES key length exceeded. %d > 32", len(key))
+	if len(key) != 16 || len(key) != 24 || len(key) != 32 {
+		return key, fmt.Errorf("given AES key is not of length 16, 24 or 32")
 	}
-	for {
-		if len(key) == 16 || len(key) == 24 || len(key) == 32 {
-			return key, nil
-		}
-		key = key + "0"
-	}
+	return key, nil
 }
