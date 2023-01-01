@@ -9,7 +9,6 @@ import (
 	"os"
 )
 
-// TODO: Refactor to use non deprecated workflow
 func main() {
 	fmt.Println("ENIGMA")
 	config, err := internal.NewConfigFromFlags()

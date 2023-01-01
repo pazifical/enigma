@@ -14,13 +14,17 @@ type Config struct {
 }
 
 func NewConfig(mode, inputPath, outputPath, key string) (Config, error) {
-	// TODO: validate input
 	return Config{
 		Mode:       mode,
 		InputPath:  inputPath,
 		OutputPath: outputPath,
 		Key:        key,
 	}, nil
+}
+
+func (c *Config) validate() error {
+	// TODO: implement
+	return nil
 }
 
 func NewConfigFromFlags() (Config, error) {
