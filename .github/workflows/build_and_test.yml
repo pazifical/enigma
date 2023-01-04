@@ -27,7 +27,8 @@ jobs:
     - name: Test
       run: go test .
       
-    - name: ls 1
-      run: ls .
-    - name: ls 2
-      run: ls ./..
+    - name: run1
+      run: ./enigma
+      
+    - name: run2
+      run: ../enigma
