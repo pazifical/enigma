@@ -21,14 +21,14 @@ jobs:
       with:
         go-version: 1.19
 
+    - name: Mkdir
+      run: mkdir build
     - name: Build
-      run: go build .
+      run: go build -o ./build/enigma .
 
     - name: Test
       run: go test .
       
-    - name: run1
-      run: ./enigma
-      
-    - name: run2
-      run: ../enigma
+    - name: Run
+      run: ./build/enigma
+
