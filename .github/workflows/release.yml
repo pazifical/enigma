@@ -22,4 +22,4 @@ jobs:
             package: ''
             name: 'enigma'
             compress: 'false'
-            dest: 'dist'
+            dest: 'build'
