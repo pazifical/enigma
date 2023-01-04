@@ -22,14 +22,12 @@ jobs:
         go-version: 1.19
 
     - name: Build
-      run: go build -v ./...
+      run: go build -v ./..
 
     - name: Test
-      run: go test -v ./...
+      run: go test -v ./..
       
     - name: ls 1
       run: ls .
     - name: ls 2
       run: ls ./..
-    - name: ls 3
-      run: ls ./...
