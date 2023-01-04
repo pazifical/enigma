@@ -40,7 +40,7 @@ func (r *Reader) readAllFiles() error {
 			return r.read(path)
 		})
 	if err != nil {
-		return fmt.Errorf("finding all files in %s : %w", r.directoryPath, err)
+		return fmt.Errorf("finding all files in '%s': %w", r.directoryPath, err)
 	}
 	// TODO: Close channel?
 	close(r.readFiles)
@@ -50,11 +50,11 @@ func (r *Reader) readAllFiles() error {
 func (r *Reader) read(filePath string) error {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return fmt.Errorf("reading file %s : %w", filePath, err)
+		return fmt.Errorf("reading file '%s': %w", filePath, err)
 	}
 	relFilePath, err := filepath.Rel(r.directoryPath, filePath)
 	if err != nil {
-		return fmt.Errorf("reading file %s : %w", filePath, err)
+		return fmt.Errorf("reading file '%s': %w", filePath, err)
 	}
 	r.readFiles <- internal.UnencryptedFile{
 		Data: data,

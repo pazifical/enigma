@@ -56,7 +56,7 @@ func (r *Reader) readAllFiles() error {
 func (r *Reader) read(f *zip.File) error {
 	readCloser, err := f.Open()
 	if err != nil {
-		return fmt.Errorf("reading %s : %w", f.Name, err)
+		return fmt.Errorf("reading '%s': %w", f.Name, err)
 	}
 
 	if f.FileInfo().IsDir() {
