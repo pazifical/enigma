@@ -26,3 +26,10 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+      
+    - name: ls 1
+      run: ls .
+    - name: ls 2
+      run: ls ./..
+    - name: ls 3
+      run: ls ./...
