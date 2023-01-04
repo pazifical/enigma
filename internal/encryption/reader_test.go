@@ -4,6 +4,7 @@ import (
 	"github.com/TwoWaySix/enigma/internal"
 	"os"
 	"path"
+	"path/filepath"
 	"testing"
 )
 
@@ -42,12 +43,21 @@ func TestReader(t *testing.T) {
 
 	// Assert
 	file1 := <-readFiles
-	if file1.Path != testdataOnePath {
+	want, err := filepath.Rel(testdataDir, testdataOnePath)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+	if file1.Path != want {
 		t.Errorf("got: %s, wanted: %s", file1.Path, testdataOnePath)
 	}
+
 	file2 := <-readFiles
-	if file2.Path != testdataTwoPath {
-		t.Errorf("got: %s, wanted: %s", file2.Path, testdataTwoPath)
+	want, err = filepath.Rel(testdataDir, testdataTwoPath)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+	if file2.Path != want {
+		t.Errorf("got: '%s', wanted: '%s'", file2.Path, want)
 	}
 
 	// Cleanup
