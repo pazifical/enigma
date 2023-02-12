@@ -22,3 +22,7 @@ go.work
 Footer
 
 .idea/
+
+*.zip
+
+.DS_Store
